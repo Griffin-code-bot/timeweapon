@@ -12,7 +12,7 @@ workflows:
 
       - echo "Sync Capacitor"
       - npx cap sync android
-
+      -  chmod +x android/gradlew
       - echo "Building APK"
       - cd android
       - ./gradlew assembleDebug
