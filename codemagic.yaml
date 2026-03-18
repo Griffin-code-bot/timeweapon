@@ -1,0 +1,21 @@
+workflows:
+  timeweapon-android:
+    name: TimeWeapon APK Build
+    max_build_duration: 60
+
+    environment:
+      node: latest
+
+    scripts:
+      - echo "Installing dependencies"
+      - npm install
+
+      - echo "Sync Capacitor"
+      - npx cap sync android
+
+      - echo "Building APK"
+      - cd android
+      - ./gradlew assembleDebug
+
+    artifacts:
+      - android/app/build/outputs/apk/debug/app-debug.apk
