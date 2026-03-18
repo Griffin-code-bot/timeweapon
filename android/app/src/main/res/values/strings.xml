@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TimeWeapon</string>
+    <string name="title_activity_main">TimeWeapon</string>
+    <string name="package_name">com.time.weapon</string>
+    <string name="custom_url_scheme">com.time.weapon</string>
+</resources>
