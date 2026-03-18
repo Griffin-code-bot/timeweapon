@@ -1,0 +1,177 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Weapon</title>
+<style>
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#020617;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+.card{
+  width:360px;
+  padding:20px;
+  border-radius:20px;
+  background:linear-gradient(145deg,#0f172a,#020617);
+  box-shadow:0 20px 60px rgba(0,0,0,.8);
+}
+.mode{
+  text-align:center;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+.time{
+  font-size:36px;
+  text-align:center;
+}
+.money{
+  font-size:26px;
+  text-align:center;
+  color:#facc15;
+}
+.rate{
+  text-align:center;
+  font-size:13px;
+  opacity:.8;
+}
+.row{display:flex;gap:8px;margin-top:12px;}
+button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.2s;
+}
+button:active{transform:scale(.95);}
+.invest{background:#16a34a;}
+.waste{background:#dc2626;}
+.start{background:#22c55e;}
+.stop{background:#ef4444;}
+.reset{background:#3b82f6;}
+.progressWrap{
+  margin-top:12px;
+  height:10px;
+  background:#111827;
+  border-radius:10px;
+  overflow:hidden;
+}
+.progress{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#22c55e,#4ade80);
+  transition:width 1s linear;
+}
+.stats{
+  margin-top:12px;
+  font-size:13px;
+}
+.people{
+  margin-top:12px;
+}
+input,select{
+  width:100%;
+  padding:8px;
+  margin-top:6px;
+  border-radius:8px;
+  border:none;
+}
+.log{
+  margin-top:10px;
+  max-height:90px;
+  overflow:auto;
+  font-size:11px;
+  background:#020617;
+  padding:8px;
+  border-radius:10px;
+}
+.glow-red{box-shadow:0 0 20px rgba(255,0,0,.6);}
+.glow-green{box-shadow:0 0 20px rgba(0,255,0,.6);}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="mode" id="mode">INVEST MODE 🟢</div>
+  <div class="time" id="time">00:00:00</div>
+  <div class="money" id="money">₹0</div>
+  <div class="rate" id="rate">₹0/sec</div>  <div class="row">
+    <button class="invest" onclick="setMode('invest')">INVEST</button>
+    <button class="waste" onclick="setMode('waste')">WASTE</button>
+  </div>  <div class="row">
+    <button class="start" onclick="startTimer()">START</button>
+    <button class="stop" onclick="stopTimer()">STOP</button>
+    <button class="reset" onclick="resetTimer()">RESET</button>
+  </div>  <div class="progressWrap"><div id="progress" class="progress"></div></div>  <div class="stats">
+    Lost: <span id="lost">₹0</span><br>
+    Invested: <span id="invested">₹0</span>
+  </div>  <div class="people">
+    <input id="person" placeholder="Who were you with?">
+    <select id="type">
+      <option value="drainer">🔴 Drainer</option>
+      <option value="neutral">🟡 Neutral</option>
+      <option value="builder">🟢 Builder</option>
+      <option value="multiplier">🔵 Multiplier</option>
+    </select>
+  </div>  <div class="log" id="log"></div>
+</div><script>
+let startTime=0,elapsed=0,interval,mode='invest';
+const vph=10000000, vps=vph/3600;
+let data=JSON.parse(localStorage.getItem('data')||'{"lost":0,"invested":0}');
+
+function save(){localStorage.setItem('data',JSON.stringify(data));}
+
+function setMode(m){
+  mode=m;
+  let card=document.getElementById('card');
+  if(m==='waste'){
+    document.getElementById('mode').innerText='WASTE MODE 🔴';
+    card.classList.add('glow-red');
+    card.classList.remove('glow-green');
+  }else{
+    document.getElementById('mode').innerText='INVEST MODE 🟢';
+    card.classList.add('glow-green');
+    card.classList.remove('glow-red');
+  }
+}
+
+function startTimer(){if(!interval){startTime=Date.now()-elapsed;interval=setInterval(update,1000);}}
+function stopTimer(){clearInterval(interval);interval=null;log();}
+function resetTimer(){clearInterval(interval);interval=null;elapsed=0;}
+
+function update(){
+  elapsed=Date.now()-startTime;
+  let s=Math.floor(elapsed/1000);
+  let h=String(Math.floor(s/3600)).padStart(2,'0');
+  let m=String(Math.floor((s%3600)/60)).padStart(2,'0');
+  let sec=String(s%60).padStart(2,'0');
+  document.getElementById('time').innerText=`${h}:${m}:${sec}`;
+
+  let money=(elapsed/3600000)*vph;
+  document.getElementById('money').innerText='₹'+Math.floor(money).toLocaleString();
+
+  document.getElementById('rate').innerText=(mode==='waste'?'Losing ':'Investing ')+'₹'+Math.floor(vps).toLocaleString()+'/sec';
+
+  if(mode==='waste') data.lost+=vps;
+  else data.invested+=vps;
+
+  save();
+  document.getElementById('lost').innerText='₹'+Math.floor(data.lost).toLocaleString();
+  document.getElementById('invested').innerText='₹'+Math.floor(data.invested).toLocaleString();
+
+  document.getElementById('progress').style.width=(s%3600)/36+'%';
+}
+
+function log(){
+  let div=document.createElement('div');
+  div.innerText=mode.toUpperCase()+" "+Math.floor(elapsed/1000)+"s";
+  document.getElementById('log').prepend(div);
+}
+</script></body>
+</html>
